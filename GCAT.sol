@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
-contract GrumpyCat is ERC20 {
+contract GCAT is ERC20 {
     address public owner;
     address private _previousOwner;
     mapping(address => bool) public controllers;
@@ -14,6 +14,9 @@ contract GrumpyCat is ERC20 {
 
     ISwapRouter public uniswapRouter;
     address public WETH9;
+
+    uint256 public rewardRate;
+    address public reserveFundAddress;
 
     struct Lock {
         uint256 amount;
@@ -252,6 +255,12 @@ contract GrumpyCat is ERC20 {
         payable(owner).transfer(amount);
     }
 
+    // Function to withdraw tokens from the contract
+    function withdrawTokens(uint256 tokenAmount) external onlyOwner {
+        require(msg.sender == owner, "Only the owner can withdraw tokens");
+        _transfer(address(this), owner, tokenAmount);
+    }
+
     // Function to receive Ether. msg.data must be empty
     receive() external payable {}
 
@@ -378,5 +387,50 @@ contract GrumpyCat is ERC20 {
             });
 
         uniswapRouter.exactInputSingle{ value: amount }(params);
+    }
+
+    // Function to stake tokens
+    function stakeTokens(uint256 amount) external {
+        // Implementation
+    }
+
+    // Function to unstake tokens
+    function unstakeTokens(uint256 amount) external {
+        // Implementation
+    }
+
+    // Function to claim staking rewards
+    function claimRewards() external {
+        // Implementation
+    }
+
+    // Function to set the reward rate for staking
+    function setRewardRate(uint256 rate) external onlyOwner {
+        rewardRate = rate;
+    }
+
+    // Function to get the current reward rate for staking
+    function getRewardRate() external view returns (uint256) {
+        return rewardRate;
+    }
+
+    // Function to set the reserve fund address
+    function setReserveFundAddress(address _reserveFundAddress) external onlyOwner {
+        reserveFundAddress = _reserveFundAddress;
+    }
+
+    // Function to get the reserve fund address
+    function getReserveFundAddress() external view returns (address) {
+        return reserveFundAddress;
+    }
+
+    // Function to deposit a specified amount to the reserve fund account
+    function depositToReserveFund(uint256 amount) external {
+        // Implementation
+    }
+
+    // Function for the owner to withdraw from the reserve fund account
+    function withdrawFromReserveFund(uint256 amount) external onlyOwner {
+        // Implementation
     }
 }
