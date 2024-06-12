@@ -14,7 +14,7 @@ contract GCAT is ERC20 {
 
     ISwapRouter public uniswapRouter;
     address public WETH9;
-
+    uint256 public tokenPrice;
     uint256 public rewardRate;
     address public reserveFundAddress;
 
@@ -267,16 +267,6 @@ contract GCAT is ERC20 {
     // Fallback function
     fallback() external payable {}
 
-    // Update token name
-    function updateTokenName(string memory newName) external onlyOwner {
-        // Function implementation here
-    }
-
-    // Update token symbol
-    function updateTokenSymbol(string memory newSymbol) external onlyOwner {
-        // Function implementation here
-    }
-
     // Transfer tokens in batch
     function batchTransfer(address[] memory recipients, uint256[] memory amounts) external whenNotPaused {
         require(recipients.length == amounts.length, "Arrays length mismatch");
@@ -309,22 +299,39 @@ contract GCAT is ERC20 {
 
     // Set token price
     function setTokenPrice(uint256 price) external onlyOwner {
-        // Function implementation here
+        tokenPrice = price;
     }
 
     // Get token price
     function getTokenPrice() public view returns (uint256) {
-        // Function implementation here
+        return tokenPrice;
     }
 
-    // Token buy function
-    function buyToken() external payable whenNotPaused {
-        // Function implementation here
+    // Function to buy tokens
+    function buyToken() public payable whenNotPaused {
+        // Calculate the number of tokens to be bought
+        uint256 tokens = msg.value / tokenPrice;
+        
+        // Transfer the tokens to the buyer
+        require(transfer(msg.sender, tokens), "Token transfer failed");
+
+        // Transfer the received Ether to the wallet
+        payable(owner).transfer(msg.value);
     }
 
-    // Token sell function
-    function sellToken(uint256 amount) external whenNotPaused {
-        // Function implementation here
+    // Function to sell tokens
+    function sellToken(uint256 tokenAmount) public whenNotPaused {
+        // Calculate the amount of Ether to be paid
+        uint256 etherAmount = tokenAmount * tokenPrice;
+
+        // Ensure the contract has enough Ether to pay
+        require(address(this).balance >= etherAmount, "Not enough Ether in the contract");
+
+        // Transfer the tokens from the seller to the contract
+        require(transferFrom(msg.sender, address(this), tokenAmount), "Token transfer failed");
+
+        // Transfer the Ether to the seller
+        payable(msg.sender).transfer(etherAmount);
     }
 
     // Airdrop specific amount to multiple accounts
